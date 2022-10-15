@@ -1,0 +1,119 @@
+public class MainClass {
+    public MainClass() {
+    }
+
+    public static void DosyaOlustur(String URL) {
+        File f = new File(URL);
+        if (!f.exists()) {
+            f.mkdir();
+            System.out.println(f.getName() + " adlı dosya Oluşturuldu..");
+        } else {
+            System.out.println("Dosya olduğundan oluşturma işlemi yapılmayacaktır. ");
+        }
+
+    }
+
+    public static String DosyaArama(String Url) {
+        Scanner konsolVeri = new Scanner(System.in);
+        File dir = new File(Url);
+        File[] fileList = dir.listFiles(new FilenameFilter() {
+            public boolean accept(File dir, String name) {
+                return name.endsWith(".docx");
+            }
+        });
+        int i = 1;
+        File[] var6 = fileList;
+        int var7 = fileList.length;
+
+        for(int var8 = 0; var8 < var7; ++var8) {
+            File file = var6[var8];
+            System.out.println("" + i + ". " + file.getName());
+            ++i;
+        }
+
+        System.out.println("Hangi Dosyayı İstiyorsun");
+        String arama = konsolVeri.nextLine();
+        return arama;
+    }
+
+    public static void DosyaOkuma(String docx, String download2) {
+        try {
+            XWPFDocument doc = new XWPFDocument(OPCPackage.open(docx));
+            Iterator var3 = doc.getParagraphs().iterator();
+
+            while(true) {
+                List runs;
+                do {
+                    if (!var3.hasNext()) {
+                        var3 = doc.getTables().iterator();
+
+                        while(var3.hasNext()) {
+                            XWPFTable tbl = (XWPFTable)var3.next();
+                            Iterator var24 = tbl.getRows().iterator();
+
+                            while(var24.hasNext()) {
+                                XWPFTableRow row = (XWPFTableRow)var24.next();
+                                Iterator var26 = row.getTableCells().iterator();
+
+                                while(var26.hasNext()) {
+                                    XWPFTableCell cell = (XWPFTableCell)var26.next();
+                                    Iterator var9 = cell.getParagraphs().iterator();
+
+                                    while(var9.hasNext()) {
+                                        XWPFParagraph p = (XWPFParagraph)var9.next();
+                                        Iterator var11 = p.getRuns().iterator();
+
+                                        while(var11.hasNext()) {
+                                            XWPFRun r = (XWPFRun)var11.next();
+                                            String text = r.getText(0);
+                                            if (text != null && text.contains("softtech")) {
+                                                text = text.replace("softtech", "Barış berker Bayram");
+                                                r.setText(text, 0);
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        String download = "C:\\Users\\berke\\AppData\\Local\\Temp\\SofttechDowloand\\";
+                        String dwn = download + download2;
+                        doc.write(new FileOutputStream(dwn));
+                        return;
+                    }
+
+                    XWPFParagraph p = (XWPFParagraph)var3.next();
+                    runs = p.getRuns();
+                } while(runs == null);
+
+                Iterator var6 = runs.iterator();
+
+                while(var6.hasNext()) {
+                    XWPFRun r = (XWPFRun)var6.next();
+                    String text = r.getText(0);
+                    if (text != null && text.contains("softtech")) {
+                        text = text.replaceAll("softtech", "Barış berker Bayram");
+                        r.setText(text, 0);
+                    }
+                }
+            }
+        } catch (IOException var18) {
+            throw new RuntimeException(var18);
+        } catch (InvalidFormatException var19) {
+            throw new RuntimeException(var19);
+        } finally {
+            ;
+        }
+    }
+
+    public static void main(String[] args) throws IOException, InvalidFormatException {
+        String tmp = System.getProperty("java.io.tmpdir");
+        String Upload = tmp + "softtechdeneme";
+        String Dowloand = tmp + "softtechdowloand";
+        System.out.println(Upload);
+        String arama = DosyaArama(Upload);
+        String s = "\\";
+        Upload = Upload + s + arama;
+        DosyaOkuma(Upload, arama);
+    }
+}
